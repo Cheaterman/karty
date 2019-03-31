@@ -114,6 +114,9 @@ class GameServer(threading.Thread):
             acceleration = None
             rotation = None
             going_backwards = velocity_vector.rotate(-user['angle']).y < 0
+            drift_factor = (
+                friction - velocity_vector.length() / 500
+            ) / 10
 
             if 'up' in user['current_actions']:
                 acceleration = Vector(0, max_acceleration * dt)
@@ -135,9 +138,16 @@ class GameServer(threading.Thread):
 
             if rotation:
                 user['angle'] += rotation
-                velocity_vector = velocity_vector.rotate(rotation)
+                velocity_vector = velocity_vector.rotate(
+                    rotation * drift_factor
+                )
 
-            velocity_angle = velocity_vector.angle((0, 0))
+            velocity_angle = velocity_vector.angle(
+                Vector(0, -1 if going_backwards else 1).rotate(user['angle'])
+            )
+            velocity_vector = velocity_vector.rotate(
+                -velocity_angle * drift_factor
+            )
 
             if acceleration:
                 acceleration = acceleration.rotate(user['angle'])
