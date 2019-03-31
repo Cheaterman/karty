@@ -24,14 +24,14 @@
     BoxLayout:
         pos_hint: {'center': (.15, .5)}
         size_hint: None, None
-        size: [dp(150) for wh in 'wh']
+        size: [dp(100) for wh in 'wh']
 
-        Button:
+        CommandButton:
             text: '<'
             on_press: root.on_action(None, '+left')
             on_release: root.on_action(None, '-left')
 
-        Button:
+        CommandButton:
             text: '>'
             on_press: root.on_action(None, '+right')
             on_release: root.on_action(None, '-right')
@@ -40,14 +40,19 @@
         orientation: 'vertical'
         pos_hint: {'center': (.85, .5)}
         size_hint: None, None
-        size: [dp(150) for wh in 'wh']
+        size: [dp(100) for wh in 'wh']
 
-        Button:
+        CommandButton:
             text: '^'
             on_press: root.on_action(None, '+up')
             on_release: root.on_action(None, '-up')
 
-        Button:
+        CommandButton:
             text: 'v'
             on_press: root.on_action(None, '+down')
             on_release: root.on_action(None, '-down')
+
+
+<CommandButton@Button>:
+    opacity: .5
+    always_release: True

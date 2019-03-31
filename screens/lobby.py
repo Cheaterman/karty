@@ -7,6 +7,7 @@ from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
+import netifaces
 
 
 class LobbyScreen(Screen):
@@ -19,19 +20,18 @@ class LobbyScreen(Screen):
     def update_refresher(self, *args):
         while True:
             try:
-                address, name = self.server_queue.get_nowait()
+                servers = self.server_queue.get_nowait()
             except queue.Empty:
                 break
 
-            if address is None:
-                self.game_list.clear_widgets()
-                continue
+            self.game_list.clear_widgets()
 
-            game = Factory.Game()
-            game.name = name
-            game.address = address
-            game.lobby = self
-            self.game_list.add_widget(game)
+            for address, name in servers:
+                game = Factory.Game()
+                game.name = name
+                game.address = address
+                game.lobby = self
+                self.game_list.add_widget(game)
 
     def on_pre_enter(self):
         self.start_scanning()
@@ -69,20 +69,32 @@ class Refresher(threading.Thread):
         client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         client.settimeout(1)
 
+        broadcast_addresses = [
+            address['broadcast']
+            for interface in netifaces.interfaces()
+            for addresses in netifaces.ifaddresses(interface).values()
+            for address in addresses
+            if 'broadcast' in address and 'netmask' in address
+        ]
+
         while True:
             if not self.scan_enabled:
                 time.sleep(1)
                 continue
 
-            client.sendto(b'REFRESH', ('255.255.255.255', 54321))
+            for address in broadcast_addresses:
+                client.sendto(b'REFRESH', (address, 54321))
+
+            servers = []
+
             while True:
                 try:
-                    data, server = client.recvfrom(1024)
+                    name, address = client.recvfrom(1024)
                 except socket.timeout:
-                    self.server_queue.put((None, None))
                     break
-                else:
-                    self.server_queue.put((server, data.decode()))
+
+                servers.append((address, name.decode()))
+                self.server_queue.put(servers)
 
 
 Builder.load_file('screens/lobby.kv')

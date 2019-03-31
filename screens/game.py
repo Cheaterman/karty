@@ -84,7 +84,7 @@ class GameServer(threading.Thread):
 
     def run(self):
         while True:
-            if time.time() >= self.next_tick_time:
+            while time.time() >= self.next_tick_time:
                 self.update()
                 self.next_tick_time += self.tickrate
 
