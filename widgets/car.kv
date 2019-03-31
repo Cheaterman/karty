@@ -1,0 +1,20 @@
+<Car>:
+    size_hint: None, None
+    size: 35, 60
+
+    canvas.before:
+        PushMatrix:
+        Rotate:
+            origin: self.center
+            angle: self.angle
+
+    canvas:
+        Color:
+            rgba: self.color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'data/images/car.png'
+
+    canvas.after:
+        PopMatrix:

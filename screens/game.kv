@@ -1,0 +1,53 @@
+#:import rgba kivy.utils.rgba
+#:import Vector kivy.vector.Vector
+
+
+<GameScreen>:
+    game_area: game_area
+
+    canvas.before:
+        Color:
+            rgba: rgba('#444444')
+        Rectangle:
+            size: self.size
+
+    FloatLayout:
+        id: game_area
+
+    Label:
+        text: 'Speed: {:.2f}'.format(Vector(root.car.velocity).length()) if root.car else ''
+        padding: dp(20), dp(20)
+        pos_hint: {'x': 0, 'top': 1}
+        size_hint: None, None
+        size: self.texture_size
+
+    BoxLayout:
+        pos_hint: {'center': (.15, .5)}
+        size_hint: None, None
+        size: [dp(150) for wh in 'wh']
+
+        Button:
+            text: '<'
+            on_press: root.on_action(None, '+left')
+            on_release: root.on_action(None, '-left')
+
+        Button:
+            text: '>'
+            on_press: root.on_action(None, '+right')
+            on_release: root.on_action(None, '-right')
+
+    BoxLayout:
+        orientation: 'vertical'
+        pos_hint: {'center': (.85, .5)}
+        size_hint: None, None
+        size: [dp(150) for wh in 'wh']
+
+        Button:
+            text: '^'
+            on_press: root.on_action(None, '+up')
+            on_release: root.on_action(None, '-up')
+
+        Button:
+            text: 'v'
+            on_press: root.on_action(None, '+down')
+            on_release: root.on_action(None, '-down')
